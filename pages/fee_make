@@ -1,0 +1,73 @@
+import pandas as pd
+import streamlit as st
+import os
+
+
+with st.form("area_fee", clear_on_submit=True):
+    title = st.text_input
+    file = st.file_uploader("excel file", type="xlsx")
+    submit = st.form_submit_button("submit")
+
+    if submit:
+        df = pd.read_excel(file,header=0, usecols=[0,1,2] )
+
+        for index, row in df.iterrows():
+            #平米処理
+            area_strs = row["タイプ(1K)"].replace("㎡", "").replace("m²", "")
+            if "~" in area_strs or "～" in area_strs:
+                lower , upper =  map(float, area_strs.split("~"))
+                area_float = [lower, upper]
+            
+            else:
+                area_float = [float(area_strs)]
+
+            #賃料処理
+            fee_strs = row["賃料"].replace("万", "")
+            if "~" in fee_strs or "～" in fee_strs:
+                lower , upper =  map(float, fee_strs.split("~"))
+                fee_float = [lower*10000, upper*10000]
+            
+            else:
+                fee_float = [float(fee_strs)*10000]
+
+            area_count = len(area_float)
+            fee_count = len(fee_float)
+            area_price = []
+            for i,area in enumerate(area_float):
+                if area_count == 1:
+                    for fee in fee_float:
+                        area_price.append(f"{(round(fee / area, 2))}")
+                else:
+                    if fee_count == 1:
+                        area_price.append(f"{(round(fee / area, 2))}")
+                
+                    elif fee_count == 2:
+                        area_price.append(f"{(round(fee_float[i] / area_float[i], 2))}")
+
+
+            area_price = f'{"~".join(area_price)}円'
+            df.at[index, "平米単価"] = area_price
+
+        excel_path = f"{title}.xlsx"
+        df.to_excel(excel_path)
+        
+        st.session_state.excel_path = excel_path        
+
+
+if st.session_state.excel_path:  
+    with open(st.session_state.excel_path, "rb") as f:
+        st.download_button(
+            label="EXCELログダウンロード",
+            data=f,
+            file_name=os.path.basename(st.session_state.excel_path),
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+
+
+    
+
+
+
+
+
+

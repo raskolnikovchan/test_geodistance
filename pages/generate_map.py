@@ -38,7 +38,7 @@ with st.form("data_to_map", clear_on_submit=True):
         center = [center_lat, center_lng]
         folium_map = folium.Map(location=center, )
 
-        for data in df.iterrows():
+        for index, data in df.iterrows():
             try:
                 folium.Marker(
                     location=[data["緯度"], data["経度"]],

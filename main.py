@@ -21,9 +21,9 @@ def get_lat_lng(address_input:str, gmaps):
     except:
         return (None, None)
 
-st.title("Generate Map")
+st.title("Get Distance")
 st.write("エクセルファイルを入れて作成してください。")
-with st.form("data_to_map", clear_on_submit=True):
+with st.form("get_distance", clear_on_submit=True):
     title = st.text_input("title")
     api_key = st.text_input("your api_key")
     point_loc = st.text_input("address of a point")
